@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="btc.mapper.VueGamesMapper">
+	<select id="vueSelectGamesList" resultType="btc.dto.GamesDto">
+		<![CDATA[
+			SELECT
+				product_id, product_img, product_name, product_discount, product_firstCost, product_price
+			FROM
+				product
+		]]>
+	</select>
+	
+	<select id="vueSelectDetail" parameterType="int" resultType="btc.dto.GamesDto">
+		<![CDATA[ 
+			SELECT
+				*
+			FROM
+				product
+			WHERE
+				product_id = #{productId}
+		]]>
+	</select>
+	
+	<insert id="CartInsert" parameterType="btc.dto.GamesDto">
+		<![CDATA[ 
+			INSERT INTO
+				cart (product_id, cart_img, product_discount, product_firstCost, product_name, product_price)
+			VALUES 
+				(#{productId}, #{cartImg}, #{productDiscount}, #{productFirstCost}, #{productName}, #{productPrice})
+		]]>
+	</insert>
+	
+	<!-- 카트 중복 여부 채크 -->
+	<select id="isInCart" parameterType="int" resultType="int">
+		<![CDATA[ 
+			SELECT COUNT(*) FROM cart WHERE product_id = #{productId}
+		]]>
+	</select>
+	
+	<!-- 중복 시 cart_count 추가 -->
+	<update id="addCartItem" parameterType="int">
+		<![CDATA[ 
+			UPDATE cart SET cart_count = cart_count + 1 WHERE product_id = #{productId}
+		]]>
+	</update>
+	
+	<!-- 카트 아이템 수량 확인 -->
+	<select id="CartQty" resultType="int" parameterType="int">
+		<![CDATA[ 
+			SELECT cart_count FROM cart WHERE product_id = #{productId}
+		]]>
+	</select>
+	
+	<!-- 중복 아이템 개수 차감 -->
+	<update id="MinusCartItem" parameterType="int">
+		<![CDATA[ 
+			UPDATE cart SET cart_count = cart_count - 1 WHERE product_id = #{productId}
+		]]>
+	</update>
+	
+	<select id="CartList" resultType="btc.dto.GamesDto">
+		<![CDATA[ 
+			SELECT
+				* 
+			FROM 
+				cart
+		]]>
+	</select>
+	
+	<!-- 카트 아이템 수량 증가시 가격증가 -->
+<!--<select id="PlusItemPrice" parameterType="int" resultType="int">
+		<![CDATA[ 
+			SELECT SUM(product_price * cart_count) FROM cart WHERE product_id = #{productId}
+		]]>
+	</select>-->
+	
+	<!-- 카트 총 가격 -->
+	<select id="getCartTotalPrice" resultType="int">
+		<![CDATA[ 
+			SELECT SUM(product_price * cart_count) FROM cart;
+		]]>
+	</select>
+	
+	<delete id="CartDelete" parameterType="int">
+		<![CDATA[ 
+			DELETE FROM
+				cart
+			WHERE product_id = #{productId}
+		]]>
+	</delete>
+</mapper>
